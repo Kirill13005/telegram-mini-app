@@ -101,6 +101,34 @@
       border-radius: 8px;
       font-size: 14px;
     }
+
+    .reset-btn {
+      margin-top: 40px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    .reset-btn img {
+      width: 120px;
+      height: 120px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      transition: transform 0.2s;
+    }
+
+    .reset-btn img:active {
+      transform: scale(0.95);
+    }
+
+    .reset-label {
+      color: white;
+      margin-top: 8px;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px black;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -127,16 +155,47 @@
     </button>
   </div>
 
+  <!-- Сброс -->
+  <button class="reset-btn" onclick="resetProgress()">
+    <img src="https://i.postimg.cc/GpJdQGrz/IMG-20250708-121902-876.jpg" alt="Reset">
+    <div class="reset-label">Сбросить прогресс</div>
+  </button>
+
   <script>
     let coins = 0;
     let coinsPerClick = 1;
     let doubleClickLevel = 0;
     let autoClickerLevel = 0;
+    let autoClickerInterval;
+
+    // Загрузка
+    function loadProgress() {
+      const saved = localStorage.getItem("kirakombat-save");
+      if (saved) {
+        const data = JSON.parse(saved);
+        coins = data.coins || 0;
+        coinsPerClick = data.coinsPerClick || 1;
+        doubleClickLevel = data.doubleClickLevel || 0;
+        autoClickerLevel = data.autoClickerLevel || 0;
+      }
+    }
+
+    // Сохранение
+    function saveProgress() {
+      const data = {
+        coins,
+        coinsPerClick,
+        doubleClickLevel,
+        autoClickerLevel
+      };
+      localStorage.setItem("kirakombat-save", JSON.stringify(data));
+    }
 
     function updateDisplay() {
       document.getElementById("coin-count").textContent = `Coins: ${Math.floor(coins)}`;
       document.getElementById("cost-doubleClick").textContent = `Cost: ${getUpgradeCost('doubleClick')}`;
       document.getElementById("cost-autoClicker").textContent = `Cost: ${getUpgradeCost('autoClicker')}`;
+      saveProgress();
     }
 
     function addCoins() {
@@ -166,13 +225,26 @@
     }
 
     function startAutoClicker() {
-      setInterval(() => {
+      if (autoClickerInterval) clearInterval(autoClickerInterval);
+      autoClickerInterval = setInterval(() => {
         coins += autoClickerLevel;
         updateDisplay();
       }, 1000);
     }
 
+    // Сброс
+    function resetProgress() {
+      const confirmReset = confirm("Ты точно хочешь сбросить прогресс?");
+      if (confirmReset) {
+        localStorage.removeItem("kirakombat-save");
+        location.reload();
+      }
+    }
+
+    // Запуск
+    loadProgress();
     updateDisplay();
+    if (autoClickerLevel > 0) startAutoClicker();
   </script>
 </body>
 </html>
