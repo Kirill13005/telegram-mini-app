@@ -1,26 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <title>My Telegram App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Кликер как Notcoin</title>
   <style>
     body {
       font-family: sans-serif;
+      background: #f5f7fa;
+      margin: 0;
       padding: 20px;
-      background: #e6f2ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    button {
-      font-size: 18px;
-      padding: 10px 20px;
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #coin-count {
+      font-size: 32px;
+      margin: 10px 0 20px;
+      font-weight: bold;
+    }
+
+    .click-btn {
+      background: gold;
+      border: none;
+      border-radius: 100px;
+      padding: 30px;
+      font-size: 24px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+      transition: 0.2s;
+    }
+
+    .click-btn:active {
+      transform: scale(0.95);
+    }
+
+    .upgrades {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .upgrade-btn {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .upgrade-btn:active {
+      background: #f0f0f0;
     }
   </style>
 </head>
 <body>
-  <h2>Привет! Это мини-приложение 🎉</h2>
-  <button onclick="Telegram.WebApp.sendData('Ты нажал кнопку!')">Нажми</button>
+  <h1>Notcoin Mini-Clicker</h1>
+  <div id="coin-count">Coins: 0</div>
+  <button class="click-btn" onclick="addCoins()">💰</button>
+
+  <div class="upgrades">
+    <button class="upgrade-btn" onclick="buyUpgrade('doubleClick')">
+      x2 Clicks <span id="cost-doubleClick">Cost: 50</span>
+    </button>
+    <button class="upgrade-btn" onclick="buyUpgrade('autoClicker')">
+      Auto Miner <span id="cost-autoClicker">Cost: 100</span>
+    </button>
+  </div>
 
   <script>
-    Telegram.WebApp.ready();
+    let coins = 0;
+    let coinsPerClick = 1;
+    let doubleClickLevel = 0;
+    let autoClickerLevel = 0;
+
+    function updateDisplay() {
+      document.getElementById("coin-count").textContent = `Coins: ${Math.floor(coins)}`;
+      document.getElementById("cost-doubleClick").textContent = `Cost: ${getUpgradeCost('doubleClick')}`;
+      document.getElementById("cost-autoClicker").textContent = `Cost: ${getUpgradeCost('autoClicker')}`;
+    }
+
+    function addCoins() {
+      coins += coinsPerClick;
+      updateDisplay();
+    }
+
+    function getUpgradeCost(type) {
+      if (type === 'doubleClick') return 50 * (doubleClickLevel + 1);
+      if (type === 'autoClicker') return 100 * (autoClickerLevel + 1);
+    }
+
+    function buyUpgrade(type) {
+      const cost = getUpgradeCost(type);
+      if (coins >= cost) {
+        coins -= cost;
+        if (type === 'doubleClick') {
+          doubleClickLevel++;
+          coinsPerClick *= 2;
+        }
+        if (type === 'autoClicker') {
+          autoClickerLevel++;
+          startAutoClicker();
+        }
+        updateDisplay();
+      }
+    }
+
+    function startAutoClicker() {
+      setInterval(() => {
+        coins += autoClickerLevel;
+        updateDisplay();
+      }, 1000);
+    }
+
+    updateDisplay();
   </script>
 </body>
 </html>
