@@ -36,6 +36,7 @@
       border: none;
       padding: 0;
       margin-bottom: 30px;
+      cursor: pointer;
     }
 
     .click-btn img {
@@ -63,6 +64,7 @@
       border: none;
       padding: 0;
       position: relative;
+      cursor: pointer;
     }
 
     .upgrade-btn img {
@@ -87,6 +89,7 @@
       padding: 4px 8px;
       border-radius: 8px;
       font-size: 14px;
+      user-select: none;
     }
 
     .upgrade-cost {
@@ -100,6 +103,7 @@
       padding: 4px 8px;
       border-radius: 8px;
       font-size: 14px;
+      user-select: none;
     }
 
     .reset-btn {
@@ -128,6 +132,7 @@
       font-weight: bold;
       text-shadow: 1px 1px 4px black;
       font-size: 16px;
+      user-select: none;
     }
   </style>
 </head>
@@ -161,6 +166,9 @@
     <div class="reset-label">Сбросить прогресс</div>
   </button>
 
+  <!-- Звук клика -->
+  <audio id="click-sound" src="https://files.catbox.moe/jr3dnu.wav"></audio>
+
   <script>
     let coins = 0;
     let coinsPerClick = 1;
@@ -168,7 +176,15 @@
     let autoClickerLevel = 0;
     let autoClickerInterval;
 
-    // Загрузка
+    function playSound() {
+      const audio = document.getElementById("click-sound");
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+    }
+
+    // Загрузка прогресса из localStorage
     function loadProgress() {
       const saved = localStorage.getItem("kirakombat-save");
       if (saved) {
@@ -180,7 +196,7 @@
       }
     }
 
-    // Сохранение
+    // Сохранение прогресса в localStorage
     function saveProgress() {
       const data = {
         coins,
@@ -200,6 +216,7 @@
 
     function addCoins() {
       coins += coinsPerClick;
+      playSound();
       updateDisplay();
     }
 
@@ -220,6 +237,7 @@
           autoClickerLevel++;
           startAutoClicker();
         }
+        playSound();
         updateDisplay();
       }
     }
@@ -232,16 +250,16 @@
       }, 1000);
     }
 
-    // Сброс
     function resetProgress() {
       const confirmReset = confirm("Ты точно хочешь сбросить прогресс?");
       if (confirmReset) {
+        playSound();
         localStorage.removeItem("kirakombat-save");
         location.reload();
       }
     }
 
-    // Запуск
+    // Старт загрузки
     loadProgress();
     updateDisplay();
     if (autoClickerLevel > 0) startAutoClicker();
